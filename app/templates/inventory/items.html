@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Items - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Items</h1>
+    <div class="page-actions">
+        <a href="{{ url_for('inventory.add_item') }}" class="btn btn-primary">+ Add Item</a>
+    </div>
+</div>
+
+<div class="filters">
+    <select onchange="window.location.href='?type='+this.value">
+        <option value="">All Types</option>
+        <option value="raw_material" {% if item_type == 'raw_material' %}selected{% endif %}>Raw Materials</option>
+        <option value="finished_goods" {% if item_type == 'finished_goods' %}selected{% endif %}>Finished Goods</option>
+        <option value="semi_finished" {% if item_type == 'semi_finished' %}selected{% endif %}>Semi-Finished</option>
+        <option value="packaging" {% if item_type == 'packaging' %}selected{% endif %}>Packaging</option>
+    </select>
+    <input type="text" placeholder="Search..." value="{{ search }}" 
+           onkeypress="if(event.key==='Enter') window.location.href='?search='+this.value">
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Unit</th>
+                    <th class="numeric">Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.code }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <span class="badge badge-{% if item.type == 'raw_material' %}info{% elif item.type == 'finished_goods' %}success{% else %}secondary{% endif %}">
+                            {{ item.type.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>{{ item.category_name or '-' }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td class="numeric {% if item.current_stock <= item.reorder_point and item.reorder_point > 0 %}text-danger{% endif %}">
+                        {{ '%.2f'|format(item.current_stock or 0) }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('inventory.edit_item', id=item.id) }}" class="btn btn-small btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company }} - Online Ordering</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            color: #2d3748;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .cart-float {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: #667eea;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .cart-float .count {
+            background: white;
+            color: #667eea;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        
+        .categories {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .product {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            height: 120px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .product-info {
+            padding: 1rem;
+        }
+        
+        .product-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .product-price {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .add-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .add-btn:hover {
+            background: #38a169;
+        }
+        
+        /* Cart Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 200;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            border-radius: 16px 16px 0 0;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 50vh;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 500;
+        }
+        
+        .cart-item-price {
+            color: #667eea;
+        }
+        
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            background: #f7fafc;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .checkout-btn:hover {
+            background: #5568d3;
+        }
+        
+        .checkout-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        /* Checkout Form */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .success-message h2 {
+            color: #48bb78;
+            margin-bottom: 1rem;
+        }
+        
+        .order-number {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.25rem;
+            margin: 1rem 0;
+        }
+        
+        .track-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🥖 {{ company }}</h1>
+        <p>Fresh baked goods, order online for pickup</p>
+    </header>
+    
+    <div class="container">
+        <div class="categories">
+            <button class="category-btn active" onclick="filterCategory('all')">All</button>
+            {% for cat in categories %}
+            <button class="category-btn" onclick="filterCategory('{{ cat.name }}')">{{ cat.name }}</button>
+            {% endfor %}
+        </div>
+        
+        <div class="products" id="products">
+            {% for product in products %}
+            <div class="product" data-category="{{ product.category_name or 'Other' }}">
+                <div class="product-image">🥐</div>
+                <div class="product-info">
+                    <div class="product-name">{{ product.name }}</div>
+                    <div class="product-price">${{ '%.2f'|format(product.price or 0) }}</div>
+                </div>
+                <button class="add-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price or 0 }})">
+                    Add to Cart
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="cart-float" onclick="showCart()">
+        <span>🛒 Cart</span>
+        <span class="count" id="cartCount">0</span>
+    </div>
+    
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cartModal" onclick="hideCart(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Your Cart</h3>
+                <button onclick="hideCart()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">×</button>
+            </div>
+            <div class="modal-body" id="cartItems">
+                <p class="text-center">Your cart is empty</p>
+            </div>
+            <div class="modal-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0.00</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn" onclick="showCheckout()" disabled>
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal" onclick="hideCheckout(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Checkout</h3>
+                <button onclick="hideCheckout()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="checkoutForm">
+                    <div class="form-group">
+                        <label>Your Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="customerPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label>Email (optional)</label>
+                        <input type="email" id="customerEmail" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Time</label>
+                        <input type="time" id="pickupTime">
+                    </div>
+                    <div class="form-group">
+                        <label>Special Instructions</label>
+                        <textarea id="instructions" rows="2" placeholder="Any special requests?"></textarea>
+                    </div>
+                </div>
+                <div id="successMessage" class="success-message hidden">
+                    <h2>✅ Order Placed!</h2>
+                    <p>Your order number:</p>
+                    <div class="order-number" id="orderNumber"></div>
+                    <p>We'll notify you when your order is ready for pickup.</p>
+                    <a href="" class="track-link" id="trackLink">Track your order →</a>
+                </div>
+            </div>
+            <div class="modal-footer" id="checkoutFooter">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="checkoutTotal">$0.00</span>
+                </div>
+                <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>{{ company }} - Fresh Daily</p>
+    </footer>
+    
+    <script>
+        let cart = [];
+        
+        function filterCategory(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === category || (category === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.product').forEach(prod => {
+                if (category === 'all' || prod.dataset.category === category) {
+                    prod.style.display = 'block';
+                } else {
+                    prod.style.display = 'none';
+                }
+            });
+        }
+        
+        function addToCart(id, name, price) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, name, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+        
+        function updateQty(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+        
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cartCount').textContent = count;
+            
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-center">Your cart is empty</p>';
+                document.getElementById('checkoutBtn').disabled = true;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+                        </div>
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('checkoutBtn').disabled = false;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+            document.getElementById('checkoutTotal').textContent = '$' + total.toFixed(2);
+        }
+        
+        function showCart() {
+            document.getElementById('cartModal').classList.add('active');
+        }
+        
+        function hideCart(e) {
+            if (!e || e.target === document.getElementById('cartModal')) {
+                document.getElementById('cartModal').classList.remove('active');
+            }
+        }
+        
+        function showCheckout() {
+            hideCart();
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+        
+        function hideCheckout(e) {
+            if (!e || e.target === document.getElementById('checkoutModal')) {
+                document.getElementById('checkoutModal').classList.remove('active');
+            }
+        }
+        
+        async function placeOrder() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            
+            if (!name || !phone) {
+                alert('Please enter your name and phone number');
+                return;
+            }
+            
+            const data = {
+                customer_name: name,
+                customer_phone: phone,
+                customer_email: document.getElementById('customerEmail').value.trim(),
+                pickup_time: document.getElementById('pickupTime').value,
+                instructions: document.getElementById('instructions').value.trim(),
+                items: cart
+            };
+            
+            try {
+                const response = await fetch('/online/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('checkoutForm').classList.add('hidden');
+                    document.getElementById('checkoutFooter').classList.add('hidden');
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    document.getElementById('orderNumber').textContent = result.order_number;
+                    document.getElementById('trackLink').href = '/online/track?order=' + result.order_number;
+                    cart = [];
+                    updateCartUI();
+                } else {
+                    alert(result.error || 'Error placing order');
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>

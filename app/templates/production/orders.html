@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Production Orders - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Production Orders</h1>
+    <div class="page-actions">
+        <a href="{{ url_for('production.add_production_order') }}" class="btn btn-primary">+ New Order</a>
+    </div>
+</div>
+
+<div class="filters">
+    <select onchange="window.location.href='?status='+this.value">
+        <option value="">All Status</option>
+        <option value="planned" {% if status == 'planned' %}selected{% endif %}>Planned</option>
+        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+    </select>
+    <input type="date" value="{{ date_from }}" onchange="window.location.href='?date_from='+this.value">
+    <span>to</span>
+    <input type="date" value="{{ date_to }}" onchange="window.location.href='?date_to='+this.value">
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th class="numeric">Planned</th>
+                    <th class="numeric">Actual</th>
+                    <th class="numeric">Yield</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.production_date }}</td>
+                    <td>{{ order.product_name }}</td>
+                    <td class="numeric">{{ '%.2f'|format(order.planned_quantity) }}</td>
+                    <td class="numeric">{{ '%.2f'|format(order.actual_quantity or 0) }}</td>
+                    <td class="numeric">
+                        {% if order.yield_percent %}
+                            {{ '%.1f'|format(order.yield_percent) }}%
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{% if order.status == 'completed' %}success{% elif order.status == 'in_progress' %}warning{% else %}info{% endif %}">
+                            {{ order.status.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('production.view_order', id=order.id) }}" class="btn btn-small btn-secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

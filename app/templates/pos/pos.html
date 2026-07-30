@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="session-status">
+    <div class="session-info">
+        <span><strong>Session:</strong> {{ pos_session.session_date }}</span>
+        <span><strong>Cashier:</strong> {{ current_user }}</span>
+        <span><strong>Opening:</strong> ${{ pos_session.opening_cash | format_currency }}</span>
+    </div>
+    <div>
+        <a href="{{ url_for('pos.close_session') }}" class="btn btn-small btn-danger">Close Session</a>
+    </div>
+</div>
+
+<div class="pos-container">
+    <div class="pos-products">
+        <div class="pos-categories">
+            <button class="category-btn active" onclick="filterCategory('all')">All</button>
+            {% for cat in categories %}
+            <button class="category-btn" onclick="filterCategory('{{ cat.name }}')">{{ cat.name }}</button>
+            {% endfor %}
+        </div>
+        
+        <div class="products-grid" id="productsGrid">
+            {% for product in products %}
+            <div class="product-card" data-category="{{ product.category_name or 'Other' }}" 
+                 onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price or 0 }})">
+                <div class="name">{{ product.name }}</div>
+                <div class="price">${{ '%.2f'|format(product.price or 0) }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="pos-cart">
+        <div class="cart-header">
+            <h3>Current Sale</h3>
+        </div>
+        
+        <div class="cart-items" id="cartItems">
+            <p class="text-muted text-center" id="emptyCart">Tap products to add</p>
+        </div>
+        
+        <div class="cart-summary">
+            <div class="summary-line">
+                <span>Subtotal:</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-line">
+                <span>Tax:</span>
+                <span id="tax">$0.00</span>
+            </div>
+            <div class="summary-line total">
+                <span>Total:</span>
+                <span id="total">$0.00</span>
+            </div>
+        </div>
+        
+        <div class="cart-actions">
+            <button class="btn btn-secondary" onclick="clearCart()">Clear</button>
+            <button class="btn btn-warning" onclick="processReturn()">Return</button>
+            <button class="btn btn-checkout" id="checkoutBtn" onclick="showPaymentModal()" disabled>
+                Checkout
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay hidden" id="paymentModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Payment</h3>
+            <button class="btn btn-small" onclick="hidePaymentModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="summary-line total">
+                <span>Amount Due:</span>
+                <span id="modalTotal">$0.00</span>
+            </div>
+            
+            <div class="payment-methods">
+                <div class="payment-method active" onclick="selectPayment('cash')">
+                    <div class="icon">💵</div>
+                    <div>Cash</div>
+                </div>
+                <div class="payment-method" onclick="selectPayment('card')">
+                    <div class="icon">💳</div>
+                    <div>Card</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Amount Received</label>
+                <input type="number" id="amountReceived" step="0.01" oninput="calculateChange()">
+            </div>
+            
+            <div class="summary-line">
+                <span>Change:</span>
+                <span id="changeAmount">$0.00</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="hidePaymentModal()">Cancel</button>
+            <button class="btn btn-success" onclick="completeSale()">Complete Sale</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let cart = [];
+let paymentMethod = 'cash';
+const TAX_RATE = 0; // Set from settings
+
+function filterCategory(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === category || (category === 'all' && btn.textContent === 'All')) {
+            btn.classList.add('active');
+        }
+    });
+    
+    document.querySelectorAll('.product-card').forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function addToCart(id, name, price) {
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({ id, name, price, qty: 1 });
+    }
+    renderCart();
+}
+
+function updateQty(id, delta) {
+    const item = cart.find(item => item.id === id);
+    if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+            cart = cart.filter(i => i.id !== id);
+        }
+    }
+    renderCart();
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    renderCart();
+}
+
+function clearCart() {
+    cart = [];
+    renderCart();
+}
+
+function renderCart() {
+    const container = document.getElementById('cartItems');
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center" id="emptyCart">Tap products to add</p>';
+        document.getElementById('checkoutBtn').disabled = true;
+    } else {
+        container.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div class="name">${item.name}</div>
+                <div class="qty">
+                    <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                </div>
+                <div class="price">$${(item.price * item.qty).toFixed(2)}</div>
+                <div class="remove" onclick="removeFromCart(${item.id})">×</div>
+            </div>
+        `).join('');
+        document.getElementById('checkoutBtn').disabled = false;
+    }
+    
+    updateTotals();
+}
+
+function updateTotals() {
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + tax;
+    
+    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    document.getElementById('modalTotal').textContent = '$' + total.toFixed(2);
+}
+
+function showPaymentModal() {
+    document.getElementById('paymentModal').classList.remove('hidden');
+    document.getElementById('amountReceived').value = '';
+    document.getElementById('changeAmount').textContent = '$0.00';
+}
+
+function hidePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+function selectPayment(method) {
+    paymentMethod = method;
+    document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+}
+
+function calculateChange() {
+    const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    const change = received - total;
+    document.getElementById('changeAmount').textContent = '$' + Math.max(0, change).toFixed(2);
+}
+
+async function completeSale() {
+    const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+    const received = parseFloat(document.getElementById('amountReceived').value) || 0;
+    const change = Math.max(0, received - total);
+    
+    if (paymentMethod === 'cash' && received < total) {
+        alert('Insufficient amount received');
+        return;
+    }
+    
+    const data = {
+        items: cart,
+        subtotal: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
+        tax: 0,
+        discount: 0,
+        total: total,
+        paid: received,
+        change: change,
+        payment_method: paymentMethod
+    };
+    
+    try {
+        const response = await fetch('/pos/transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Sale completed!');
+            window.location.href = '/pos/receipt/' + result.transaction_id;
+        } else {
+            alert(result.error || 'Error processing sale');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+function processReturn() {
+    // Simplified return - would need original transaction reference in production
+    alert('Please use the return function from transaction history');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        hidePaymentModal();
+    }
+    if (e.key === 'F2' && cart.length > 0) {
+        showPaymentModal();
+    }
+});
+</script>
+{% endblock %}

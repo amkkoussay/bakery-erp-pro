@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Product Profitability - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Product Profitability</h1>
+    <div class="page-actions">
+        <a href="{{ url_for('reports.export_report', report_type='profitability', date_from=date_from, date_to=date_to) }}" class="btn btn-secondary">Export CSV</a>
+    </div>
+</div>
+
+<div class="filters">
+    <form method="get">
+        <label>From <input type="date" name="date_from" value="{{ date_from }}"></label>
+        <label>To <input type="date" name="date_to" value="{{ date_to }}"></label>
+        <button type="submit" class="btn btn-primary btn-small">Apply</button>
+    </form>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-item">
+        <div class="stat-label">Revenue</div>
+        <div class="stat-value">{{ total_revenue|format_currency }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">Estimated Profit</div>
+        <div class="stat-value">{{ total_profit|format_currency }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">Missing Recipes</div>
+        <div class="stat-value {% if missing_recipe %}text-danger{% endif %}">{{ missing_recipe|length }}</div>
+    </div>
+</div>
+
+{% if missing_recipe %}
+<div class="flash flash-error">
+    These products sold in the period have no active recipe (BOM), so their cost/margin could not be calculated:
+    {{ missing_recipe|map(attribute='name')|join(', ') }}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="numeric">Qty Sold</th>
+                    <th class="numeric">Revenue</th>
+                    <th class="numeric">Cost/Unit</th>
+                    <th class="numeric">Selling Price</th>
+                    <th class="numeric">Margin %</th>
+                    <th class="numeric">Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>{{ p.name }} <small>({{ p.code }})</small></td>
+                    <td class="numeric">{{ p.qty_sold }} {{ p.unit }}</td>
+                    <td class="numeric">{{ p.revenue|format_currency }}</td>
+                    <td class="numeric">{{ p.cost_per_unit|format_currency if p.cost_per_unit is not none else '-' }}</td>
+                    <td class="numeric">{{ p.selling_price|format_currency if p.selling_price is not none else '-' }}</td>
+                    <td class="numeric {% if p.margin_percent is not none and p.margin_percent < 20 %}text-danger{% endif %}">
+                        {{ p.margin_percent ~ '%' if p.margin_percent is not none else '-' }}
+                    </td>
+                    <td class="numeric"><strong>{{ p.actual_profit|format_currency if p.actual_profit is not none else '-' }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

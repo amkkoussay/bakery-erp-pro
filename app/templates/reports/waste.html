@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Waste Cost - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Money Lost to Waste</h1>
+</div>
+
+<div class="filters">
+    <form method="get">
+        <label>From <input type="date" name="date_from" value="{{ date_from }}"></label>
+        <label>To <input type="date" name="date_to" value="{{ date_to }}"></label>
+        <button type="submit" class="btn btn-primary btn-small">Apply</button>
+    </form>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-item">
+        <div class="stat-label">Total Waste Cost</div>
+        <div class="stat-value text-danger">{{ waste.total_waste_cost|format_currency }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">Inventory Waste</div>
+        <div class="stat-value">{{ waste.inventory_waste_cost|format_currency }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-label">Production Waste</div>
+        <div class="stat-value">{{ waste.production_waste_cost|format_currency }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Inventory Waste Movements</span></div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr><th>Date</th><th>Item</th><th class="numeric">Quantity</th><th class="numeric">Cost</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                {% for m in waste.inventory_waste_movements %}
+                <tr>
+                    <td>{{ m.created_at }}</td>
+                    <td>{{ m.item_name }}</td>
+                    <td class="numeric">{{ m.quantity }} {{ m.unit }}</td>
+                    <td class="numeric">{{ m.total_cost|format_currency }}</td>
+                    <td>{{ m.notes or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Production Order Waste</span></div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr><th>Order</th><th>Date</th><th>Product</th><th class="numeric">Waste Qty</th><th class="numeric">Cost</th></tr>
+            </thead>
+            <tbody>
+                {% for p in waste.production_waste_lines %}
+                <tr>
+                    <td>{{ p.order_number }}</td>
+                    <td>{{ p.production_date }}</td>
+                    <td>{{ p.product_name }}</td>
+                    <td class="numeric">{{ p.waste_quantity }} {{ p.unit }}</td>
+                    <td class="numeric">{{ p.cost|format_currency }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

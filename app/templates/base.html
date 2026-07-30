@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if session.user_id %}
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('dashboard') }}">{{ app_name }}</a>
+        </div>
+        <button class="nav-toggle" onclick="toggleNav()">☰</button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-section">
+                <span class="nav-label">Operations</span>
+                <a href="{{ url_for('pos.pos_main') }}" class="nav-link">POS</a>
+                <a href="{{ url_for('sales.sales_orders') }}" class="nav-link">Sales</a>
+                <a href="{{ url_for('purchases.purchase_orders') }}" class="nav-link">Purchasing</a>
+                <a href="{{ url_for('production.production_orders') }}" class="nav-link">Production</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">Inventory</span>
+                <a href="{{ url_for('inventory.items_list') }}" class="nav-link">Items</a>
+                <a href="{{ url_for('inventory.stock_levels') }}" class="nav-link">Stock</a>
+                <a href="{{ url_for('inventory.movements') }}" class="nav-link">Movements</a>
+                <a href="{{ url_for('inventory.predictions') }}" class="nav-link">Predictions</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">Records</span>
+                <a href="{{ url_for('sales.customers_list') }}" class="nav-link">Customers</a>
+                <a href="{{ url_for('purchases.suppliers_list') }}" class="nav-link">Suppliers</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">Reports</span>
+                <a href="{{ url_for('reports.daily_production') }}" class="nav-link">Production</a>
+                <a href="{{ url_for('reports.sales_summary') }}" class="nav-link">Sales</a>
+                <a href="{{ url_for('reports.inventory_valuation') }}" class="nav-link">Inventory</a>
+                <a href="{{ url_for('reports.profitability') }}" class="nav-link">Profitability</a>
+                <a href="{{ url_for('reports.waste_report') }}" class="nav-link">Waste</a>
+                <a href="{{ url_for('reports.reports_dashboard') }}" class="nav-link">All Reports</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">Online</span>
+                <a href="{{ url_for('online_orders.admin_orders') }}" class="nav-link">Orders</a>
+                <a href="{{ url_for('online_orders.shop') }}" target="_blank" class="nav-link">View Shop</a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">System</span>
+                <a href="{{ url_for('settings.settings_dashboard') }}" class="nav-link">Settings</a>
+                <a href="{{ url_for('auth.change_password') }}" class="nav-link">Password</a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
+            </div>
+        </div>
+        <div class="nav-user">
+            <span>{{ current_user }}</span>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleNav() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+        
+        // Auto-hide flash messages
+        setTimeout(function() {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(f => f.style.display = 'none');
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

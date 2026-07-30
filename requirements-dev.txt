@@ -1,0 +1,10 @@
+# Bakery ERP - Development / Testing Dependencies
+# Install with: pip install -r requirements-dev.txt --break-system-packages
+#
+# Tests are written with Python's built-in unittest module, so they run
+# with NO extra dependencies:
+#   python3 -m unittest discover -s tests -v
+#
+# pytest is optional - it auto-discovers unittest.TestCase classes too,
+# and gives nicer output / plugins if you have it installed:
+pytest==8.3.3

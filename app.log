@@ -1,0 +1,80 @@
+nohup: ignoring input
+==================================================
+Bakery ERP System
+==================================================
+Server starting on http://127.0.0.1:5000
+Press Ctrl+C to stop
+==================================================
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://169.254.0.21:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 568-092-151
+10.110.158.1 - - [30/Jul/2026 14:12:57] "GET /auth/login HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:12:57] "GET /static/css/style.css HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:12:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+10.110.158.1 - - [30/Jul/2026 14:12:59] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:24] "[32mPOST /auth/login HTTP/1.1[0m" 302 -
+10.110.158.1 - - [30/Jul/2026 14:13:24] "GET /dashboard HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:13:24] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:24] "[33mGET /reports/api/daily-sales HTTP/1.1[0m" 404 -
+10.110.158.1 - - [30/Jul/2026 14:13:25] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:35] "GET /inventory/predictions HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:13:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:45] "GET /inventory/predictions HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:13:45] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:46] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:13:55] "[32mGET /pos/ HTTP/1.1[0m" 302 -
+10.110.158.1 - - [30/Jul/2026 14:13:55] "[35m[1mGET /pos/session/open HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/bakery_erp2/bakery_erp2/app/pos/routes.py", line 97, in open_session
+    return render_template('pos/open_session.html', warehouses=warehouses)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/templating.py", line 150, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/templating.py", line 64, in get_source
+    return self._get_source_fast(environment, template)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/flask/templating.py", line 98, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: pos/open_session.html
+10.110.158.1 - - [30/Jul/2026 14:14:05] "GET /reports/profitability HTTP/1.1" 200 -
+10.110.158.1 - - [30/Jul/2026 14:14:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+10.110.158.1 - - [30/Jul/2026 14:14:06] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
