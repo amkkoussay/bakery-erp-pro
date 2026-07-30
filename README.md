@@ -15,7 +15,7 @@ A comprehensive Enterprise Resource Planning (ERP) system tailored for bakeries,
 
 The project follows a structured **Flask** architecture using the **Service-Repository Pattern** to ensure maintainability and scalability:
 
-![Architecture Diagram](https://raw.githubusercontent.com/amkkoussay/Pann/main/architecture.png) *(Note: Placeholder link, will be updated after push)*
+![Architecture Diagram](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/architecture.png)
 
 ### Components:
 - **Blueprints (Controllers):** Handle web requests and routing.
@@ -27,7 +27,7 @@ The project follows a structured **Flask** architecture using the **Service-Repo
 
 | Dashboard | Inventory Predictions | Profitability Reports |
 | :---: | :---: | :---: |
-| ![Dashboard](https://raw.githubusercontent.com/amkkoussay/Pann/main/dashboard.webp) | ![Predictions](https://raw.githubusercontent.com/amkkoussay/Pann/main/predictions.webp) | ![Profitability](https://raw.githubusercontent.com/amkkoussay/Pann/main/profitability.webp) |
+| ![Dashboard](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/dashboard.webp) | ![Predictions](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/predictions.webp) | ![Profitability](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/profitability.webp) |
 
 ## 🛠️ Technology Stack
 
