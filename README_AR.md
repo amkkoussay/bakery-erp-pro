@@ -15,7 +15,7 @@
 
 يعتمد المشروع على بنية **Flask** منظمة تتبع نمط (Service-Repository Pattern) لضمان سهولة الصيانة والتوسع:
 
-![Architecture Diagram](../architecture.png)
+![Architecture Diagram](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/architecture.png)
 
 ### المكونات:
 - **Blueprints (Controllers):** لمعالجة طلبات الويب وتوجيهها.
@@ -27,7 +27,7 @@
 
 | لوحة التحكم | التنبؤ بالمخزون | تقارير الربحية |
 | :---: | :---: | :---: |
-| ![Dashboard](../dashboard.webp) | ![Predictions](../predictions.webp) | ![Profitability](../profitability.webp) |
+| ![Dashboard](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/dashboard.webp) | ![Predictions](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/predictions.webp) | ![Profitability](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/profitability.webp) |
 
 ## 🛠️ التقنيات المستخدمة
 
