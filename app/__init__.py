@@ -14,7 +14,8 @@ DATABASE = str(ROOT / "bakery_erp.db")
 def get_db():
     """Get database connection for current request."""
     if "db" not in g:
-        g.db = sqlite3.connect(g.get("_database_path", current_app.config["_DATABASE_PATH"]))
+        database_path = g.get("_database_path", current_app.config["_DATABASE_PATH"])
+        g.db = sqlite3.connect(database_path)
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
@@ -29,6 +30,7 @@ def close_db(e=None):
 
 def init_db():
     """Initialize database with schema."""
+    g._database_path = current_app.config["_DATABASE_PATH"]
     db = get_db()
     schema_path = ROOT / "schema.sql"
     with schema_path.open(encoding="utf-8") as schema:
@@ -63,15 +65,15 @@ def create_app(test_config=None):
     os.makedirs(app.instance_path, exist_ok=True)
     os.makedirs(os.path.dirname(app.config["DATABASE"]), exist_ok=True)
 
+    @app.teardown_appcontext
+    def close_database(error=None):
+        close_db(error)
+
     @app.before_request
     def bind_database_path():
         g._database_path = app.config["_DATABASE_PATH"]
 
-    @app.teardown_appcontext
-    def bind_database_path_for_app_context(error=None):
-        g._database_path = app.config["_DATABASE_PATH"]
-
-    app.teardown_appcontext(close_db)
+    app.teardown_appcontext(close_database)
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix="/auth")
