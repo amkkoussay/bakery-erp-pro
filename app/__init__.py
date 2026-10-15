@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import sqlite3
 
-from flask import Flask, g
+from flask import Flask, current_app, g
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,7 +14,7 @@ DATABASE = str(ROOT / "bakery_erp.db")
 def get_db():
     """Get database connection for current request."""
     if "db" not in g:
-        g.db = sqlite3.connect(g._database_path)
+        g.db = sqlite3.connect(g.get("_database_path", current_app.config["_DATABASE_PATH"]))
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
@@ -62,6 +62,10 @@ def create_app(test_config=None):
 
     os.makedirs(app.instance_path, exist_ok=True)
     os.makedirs(os.path.dirname(app.config["DATABASE"]), exist_ok=True)
+
+    @app.before_request
+    def bind_database_path():
+        g._database_path = app.config["_DATABASE_PATH"]
 
     @app.before_request
     def bind_database_path():
