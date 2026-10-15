@@ -67,6 +67,10 @@ def create_app(test_config=None):
     def bind_database_path():
         g._database_path = app.config["_DATABASE_PATH"]
 
+    @app.teardown_appcontext
+    def bind_database_path_for_app_context(error=None):
+        g._database_path = app.config["_DATABASE_PATH"]
+
     app.teardown_appcontext(close_db)
 
     from app.auth import bp as auth_bp
