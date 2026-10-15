@@ -1,84 +1,67 @@
-# 🥖 Bakery ERP System
+# Bakery ERP
 
-A comprehensive Enterprise Resource Planning (ERP) system tailored for bakeries, designed to streamline production, sales, and inventory management with a focus on efficiency and data-driven insights.
+A Flask and SQLite application for bakery operations: point of sale, inventory, production, purchasing, online orders, and reporting. This is a development/demo project; review authentication, deployment settings, and business workflows before using it with live operational or financial data.
 
-## 🌟 Key Features
+## Features
 
-- **Point of Sale (POS):** Fast and intuitive interface for direct sales processing.
-- **Smart Inventory Predictions:** Leverages historical data to forecast raw material needs and prevent stockouts.
-- **Production Management:** Track production orders and manage Bill of Materials (BOM).
-- **Profitability Reports:** Detailed analysis of production costs vs. sales to calculate profit margins accurately.
-- **Supplier & Customer Management:** Integrated records for financial and credit transactions.
-- **Online Ordering:** Built-in platform to receive and manage remote customer orders.
+- Point of sale and sales management
+- Inventory, bills of materials, and production orders
+- Purchasing, suppliers, and customer records
+- Online ordering
+- Profitability, waste, and inventory prediction reports
 
-## 🏗️ Architecture
+## Stack and layout
 
-The project follows a structured **Flask** architecture using the **Service-Repository Pattern** to ensure maintainability and scalability:
+- Python and Flask
+- SQLite with hand-written SQL
+- HTML templates, CSS, and JavaScript
+- Feature blueprints, service/repository modules, SQL schema and migrations
 
-![Architecture Diagram](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/architecture.png)
+## Local setup
 
-### Components:
-- **Blueprints (Controllers):** Handle web requests and routing.
-- **Services:** Contain the core business logic.
-- **Repositories:** Manage direct database interactions using Raw SQL.
-- **Database:** SQLite for lightweight and fast operation.
+Use Python 3.10 or newer.
 
-## 📸 Screenshots
-
-| Dashboard | Inventory Predictions | Profitability Reports |
-| :---: | :---: | :---: |
-| ![Dashboard](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/dashboard.webp) | ![Predictions](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/predictions.webp) | ![Profitability](https://raw.githubusercontent.com/amkkoussay/bakery-erp-pro/main/profitability.webp) |
-
-## 🛠️ Technology Stack
-
-- **Backend:** Python (Flask)
-- **Database:** SQLite
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Dependencies:** Werkzeug, Jinja2
-
-## 🚀 Quick Start
-
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Run the application:**
-   ```bash
-   python run.py
-   ```
-
-3. **Populate sample data:**
-   ```bash
-   python sample_data.py
-   ```
-
-4. **Default Login:**
-   - **Username:** `admin`
-   - **Password:** `admin123`
-
-## 📊 Project Structure
-
-```
-bakery_erp/
-├── app/                 # Main application logic
-│   ├── auth/            # Authentication module
-│   ├── inventory/       # Inventory management
-│   ├── services/        # Business logic (Services)
-│   ├── repositories/    # Data access (Repositories)
-│   └── templates/       # HTML templates
-├── architecture.png     # System architecture diagram
-├── bakery_erp.db        # SQLite database
-├── run.py               # Application entry point
-└── sample_data.py       # Sample data generator
+```bash
+python -m venv .venv
+# Linux/macOS
+source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-## 📈 Roadmap
+Set a strong secret before starting. Keep it outside Git:
 
-- [ ] Multi-branch and warehouse support.
-- [ ] Integration with online payment gateways.
-- [ ] Dedicated mobile app for delivery personnel.
-- [ ] Automated WhatsApp/Email notification system.
+```bash
+# Linux/macOS
+export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+# Windows PowerShell
+$env:SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+```
 
----
-Developed with ❤️ to empower the bakery and confectionery industry.
+Initialize the database and start the local server:
+
+```bash
+python run.py
+```
+
+Open http://127.0.0.1:5000. The database is created from `schema.sql` when missing. Create an initial account through the signup page; no default administrator password is provided.
+
+For development-only debug mode, explicitly set `FLASK_DEBUG=1`. Do not enable the Flask development server or debug mode for production. Configure `DATABASE`, `HOST`, and `PORT` through environment variables as needed.
+
+## Tests
+
+The tests use Python's built-in `unittest` framework and a temporary SQLite database:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Optional pytest output is available after installing `requirements-dev.txt`.
+
+## Repository hygiene
+
+Local databases, logs, virtual environments, bytecode, and secrets are excluded by `.gitignore`. The existing tracked database, logs, and bytecode should be removed from version control in a cleanup commit; changing ignore rules alone does not remove already tracked files.
+
+## License
+
+No license file is currently present. Contact the repository owner before reusing or redistributing this project.
