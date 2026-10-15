@@ -1,46 +1,29 @@
 #!/usr/bin/env python3
-"""
-Bakery ERP - Main Entry Point
-Run this file to start the Flask application
-"""
+"""Bakery ERP application entry point."""
+
 import os
-import sys
+
 from app import create_app, init_db
 
+
 def main():
-    """Main entry point"""
-    # Check if database exists, if not initialize it
-    db_path = 'bakery_erp.db'
-    if not os.path.exists(db_path):
-        print("Database not found. Initializing...")
-        try:
-            app = create_app()
-            with app.app_context():
-                init_db()
-            print("Database initialized successfully!")
-            print("Default login: admin / admin123")
-        except Exception as e:
-            print(f"Error initializing database: {e}")
-            sys.exit(1)
-    
-    # Create and run app
-    app = create_app()
-    
-    print("=" * 50)
-    print("Bakery ERP System")
-    print("=" * 50)
-    print("Server starting on http://127.0.0.1:5000")
-    print("Press Ctrl+C to stop")
-    print("=" * 50)
-    
-    # Run with Flask development server
-    # For production, use gunicorn or waitress
+    """Initialize a missing database and start the local development server."""
+    database = os.environ.get("DATABASE", "bakery_erp.db")
+    if not os.path.exists(database):
+        app = create_app({"DATABASE": database})
+        with app.app_context():
+            init_db()
+        print("Database initialized. Create the first user through the signup page.")
+
+    app = create_app({"DATABASE": database})
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
     app.run(
-        host='0.0.0.0',
-        port=5000,
-        debug=True,
-        threaded=True
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "5000")),
+        debug=debug,
+        threaded=True,
     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
